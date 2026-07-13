@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5 Kaedah Membuat Nota Semasa Membaca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1F2A24; --paper:#EEF0E4; --paper-alt:#E2E6D4;
+    --forest:#2F4A3D; --forest-dark:#213531; --gold:#C9A227;
+    --clay:#A65D3B; --teal:#3F6F65; --line:#c9cdb8;
+    --radius:14px; --maxw:900px;
+  }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; } }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', sans-serif; line-height:1.65; }
+  h1,h2,h3{ font-family:'Fraunces', serif; color:var(--forest-dark); margin:0; }
+  .eyebrow{ font-family:'Space Mono', monospace; font-size:0.76rem; letter-spacing:0.13em; text-transform:uppercase; color:var(--clay); margin-bottom:0.6rem; display:block; }
+  button{ font-family:'Inter', sans-serif; cursor:pointer; }
+  :focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
+
+  #ribbon{ position:fixed; right:18px; top:50%; transform:translateY(-50%); z-index:50; display:flex; flex-direction:column; align-items:center; }
+  #ribbon .fabric{ width:32px; background:var(--forest); padding:12px 0; border-radius:6px 6px 0 0; box-shadow:0 6px 18px rgba(31,42,36,0.25); position:relative; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  #ribbon .fabric::after{ content:""; position:absolute; left:0; right:0; bottom:-16px; height:16px; background:inherit; clip-path:polygon(0 0,100% 0,100% 60%,50% 100%,0 60%); }
+  #ribbon .dot{ width:12px; height:12px; border-radius:50%; background:rgba(238,240,228,0.35); border:2px solid rgba(238,240,228,0.5); transition:background .25s, border-color .25s, transform .25s; position:relative; }
+  #ribbon .dot.active{ background:var(--gold); border-color:var(--gold); transform:scale(1.25); }
+  #ribbon .dot.done{ background:#fff; border-color:var(--gold); }
+  #ribbon .dot span{ position:absolute; right:24px; top:50%; transform:translateY(-50%); font-family:'Space Mono', monospace; font-size:0.63rem; color:var(--forest-dark); background:var(--paper-alt); padding:2px 7px; border-radius:6px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .2s; }
+  #ribbon .dot:hover span{ opacity:1; }
+  @media (max-width:760px){
+    #ribbon{ top:0; right:0; left:0; transform:none; }
+    #ribbon .fabric{ flex-direction:row; width:100%; border-radius:0; padding:8px 10px; justify-content:space-between; gap:0; }
+    #ribbon .fabric::after{ display:none; }
+    #ribbon .dot span{ display:none; }
+  }
+
+  header.hero{ background:radial-gradient(1200px 500px at 15% -10%, #3a5c4d 0%, var(--forest) 55%, var(--forest-dark) 100%); color:var(--paper); padding:5rem 1.5rem 4rem; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; }
+  header.hero .eyebrow{ color:#E8C978; }
+  header.hero h1{ color:#fff; font-size:clamp(2rem,4.4vw,3rem); font-weight:600; line-height:1.1; max-width:20ch; }
+  header.hero p{ color:#D8DECB; max-width:56ch; font-size:1.03rem; margin-top:1rem; }
+
+  .method-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:0.9rem; margin-top:2.2rem; }
+  @media (max-width:900px){ .method-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:480px){ .method-grid{ grid-template-columns:1fr; } }
+  .mcard{ background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); border-radius:12px; padding:1rem; }
+  .mcard .num{ font-family:'Space Mono',monospace; color:var(--gold); font-size:0.78rem; }
+  .mcard h3{ color:#fff; font-size:1rem; margin:0.3rem 0 0.4rem; }
+  .mcard p{ color:#c9d0ba; font-size:0.82rem; margin:0; }
+
+  section.block{ padding:4.2rem 1.5rem; border-bottom:1px solid var(--line); }
+  section.block:nth-of-type(even){ background:var(--paper-alt); }
+  section.block h2{ font-size:clamp(1.35rem,2.8vw,1.85rem); font-weight:600; max-width:30ch; }
+  .lede{ max-width:66ch; color:#41493f; margin-top:0.8rem; }
+  .howto{ font-size:0.88rem; color:#5c6355; background:#fff; border:1px dashed var(--line); border-radius:10px; padding:0.8rem 1rem; margin-top:1rem; max-width:66ch; }
+  .howto strong{ color:var(--forest-dark); }
+
+  .card{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:1.5rem 1.7rem; margin-top:1.6rem; }
+  .passage{ font-family:'Fraunces', serif; font-size:1.04rem; line-height:1.75; color:#28352c; }
+  .passage p{ margin:0 0 1em; } .passage p:last-child{ margin-bottom:0; }
+
+  .btn{ background:var(--forest); color:#fff; border:none; padding:0.6rem 1.15rem; border-radius:8px; font-weight:600; font-size:0.88rem; transition:background .2s, transform .15s; }
+  .btn:hover{ background:var(--forest-dark); } .btn:active{ transform:scale(0.97); }
+  .btn.gold{ background:var(--gold); color:var(--forest-dark); } .btn.gold:hover{ background:#b58e1e; }
+  .btn.ghost{ background:transparent; color:var(--forest); border:2px solid var(--forest); padding:0.5rem 1rem; }
+
+  /* CORNELL */
+  .cornell{ display:grid; grid-template-columns:1fr 1.6fr; margin-top:1.6rem; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .cornell .col-head{ font-family:'Space Mono', monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--forest); background:var(--paper-alt); padding:0.65rem 1rem; border-bottom:1px solid var(--line); }
+  .cornell .cue, .cornell .notes{ background:#fff; padding:1rem; min-height:220px; }
+  .cornell .cue{ border-right:1px solid var(--line); background:#fbfaf5; }
+  .cornell .cue p{ font-size:0.88rem; color:#41493f; margin:0 0 0.8rem; font-weight:600; }
+  .cornell textarea{ width:100%; min-height:180px; border:none; resize:vertical; font-family:'Inter',sans-serif; font-size:0.92rem; color:var(--ink); background:transparent; }
+  .cornell textarea:focus{ outline:none; background:#fff; }
+  .summary-row{ grid-column:1/-1; border-top:1px solid var(--line); background:#fff; }
+  .summary-row textarea{ width:100%; min-height:75px; border:none; padding:1rem; font-family:'Inter',sans-serif; font-size:0.92rem; }
+  .summary-row textarea:focus{ outline:none; }
+  @media (max-width:640px){ .cornell{ grid-template-columns:1fr; } .cornell .cue{ border-right:none; border-bottom:1px solid var(--line);} }
+
+  /* RANGKA */
+  .outline-tools{ display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; margin-top:1.4rem; font-family:'Space Mono',monospace; font-size:0.82rem; }
+  .outline-tools select{ padding:0.45rem 0.6rem; border-radius:8px; border:1px solid var(--line); font-family:'Space Mono',monospace; }
+  #outlineList{ list-style:none; margin:1rem 0 0; padding:0; }
+  #outlineList li{ margin:0.32rem 0; padding:0.45rem 0.65rem; border-radius:8px; background:#fff; border:1px solid var(--line); }
+  #outlineList li[data-level="1"]{ margin-left:0; font-weight:700; border-left:4px solid var(--forest); }
+  #outlineList li[data-level="2"]{ margin-left:1.8rem; border-left:4px solid var(--teal); }
+  #outlineList li[data-level="3"]{ margin-left:3.6rem; border-left:4px solid var(--gold); font-size:0.9rem; }
+  #outlineList li[contenteditable]:focus{ outline:2px solid var(--gold); }
+  #outlineList li:empty::before{ content:"Taip di sini…"; color:#9aa192; font-style:italic; }
+  .del-btn{ float:right; background:none; border:none; color:var(--clay); font-size:0.85rem; opacity:0.6; }
+  .del-btn:hover{ opacity:1; }
+
+  /* PEMETAAN */
+  .tree{ margin-top:1.8rem; display:flex; flex-direction:column; align-items:center; gap:1.4rem; }
+  .tree .root{ background:var(--forest); color:#fff; font-family:'Fraunces',serif; font-weight:600; padding:0.8rem 1.5rem; border-radius:12px; font-size:1rem; }
+  .branches{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; width:100%; }
+  @media (max-width:700px){ .branches{ grid-template-columns:1fr; } }
+  .branch{ background:#fff; border:2px solid var(--teal); border-radius:12px; padding:0.85rem; text-align:center; }
+  .branch .btitle{ font-weight:700; font-size:0.92rem; padding:0.35rem; border-bottom:1px dashed var(--line); margin-bottom:0.55rem; color:var(--forest-dark); }
+  .branch [contenteditable]{ padding:0.32rem; margin-top:0.35rem; border-radius:6px; font-size:0.85rem; background:var(--paper-alt); }
+  .branch [contenteditable]:empty::before{ content:attr(data-placeholder); color:#8b9284; font-style:italic; }
+  .branch [contenteditable]:focus{ outline:2px solid var(--gold); background:#fff; }
+
+  /* CARTA */
+  table.chart{ width:100%; border-collapse:collapse; margin-top:1.6rem; background:#fff; border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); }
+  table.chart th{ background:var(--forest); color:#fff; font-family:'Space Mono',monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; padding:0.7rem 0.8rem; text-align:left; }
+  table.chart td{ border-top:1px solid var(--line); padding:0.6rem 0.8rem; font-size:0.88rem; vertical-align:top; }
+  table.chart td.kaedah{ font-weight:700; color:var(--forest-dark); background:var(--paper-alt); white-space:nowrap; }
+  table.chart td[contenteditable]:focus{ outline:2px solid var(--gold); background:#fbfaf5; }
+  table.chart td[contenteditable]:empty::before{ content:attr(data-placeholder); color:#9aa192; font-style:italic; }
+  .chart-scroll{ overflow-x:auto; }
+  @media (max-width:700px){ table.chart{ font-size:0.82rem; } }
+
+  /* AYAT */
+  #sentenceList{ list-style:none; counter-reset:sen; margin:1.5rem 0 0; padding:0; }
+  #sentenceList > li{ counter-increment:sen; margin:0.5rem 0; padding:0.6rem 0.8rem 0.6rem 2.4rem; position:relative; background:#fff; border:1px solid var(--line); border-radius:8px; }
+  #sentenceList > li::before{ content:counter(sen) "."; position:absolute; left:0.8rem; font-family:'Space Mono',monospace; font-weight:700; color:var(--forest); }
+  #sentenceList > li[contenteditable]:focus{ outline:2px solid var(--gold); }
+  #sentenceList > li:empty::before{ content:counter(sen) "."; }
+  #sentenceList .sub{ list-style:lower-alpha; margin:0.4rem 0 0.2rem 1.6rem; padding:0; }
+  #sentenceList .sub li{ margin:0.3rem 0; padding:0.4rem 0.7rem; background:var(--paper-alt); border-radius:6px; font-size:0.9rem; }
+  #sentenceList .sub li[contenteditable]:focus{ outline:2px solid var(--gold); }
+  .del-btn2{ float:right; background:none; border:none; color:var(--clay); opacity:0.6; font-size:0.85rem; }
+  .del-btn2:hover{ opacity:1; }
+
+  /* PERBANDINGAN */
+  .compare-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:0.9rem; margin-top:1.6rem; }
+  .pillcard{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:1rem; text-align:center; cursor:pointer; transition:transform .15s, border-color .15s; }
+  .pillcard:hover{ transform:translateY(-3px); border-color:var(--gold); }
+  .pillcard.picked{ border-color:var(--forest); background:var(--paper-alt); }
+  .pillcard h3{ font-size:0.95rem; margin-bottom:0.3rem; }
+  .pillcard p{ font-size:0.78rem; color:#5c6355; margin:0; }
+
+  .reflect-q{ margin-top:1.6rem; }
+  .reflect-q label{ font-weight:600; display:block; margin-bottom:0.5rem; }
+  .reflect-q textarea{ width:100%; min-height:85px; border:1px solid var(--line); border-radius:10px; padding:0.8rem 1rem; font-family:'Inter',sans-serif; font-size:0.95rem; resize:vertical; }
+  .reflect-q textarea:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,162,39,0.25); }
+  .checklist{ margin-top:1.8rem; display:grid; gap:0.65rem; }
+  .checklist label{ display:flex; gap:0.7rem; align-items:flex-start; font-size:0.93rem; cursor:pointer; }
+  .checklist input{ margin-top:0.25rem; width:18px; height:18px; accent-color:var(--forest); }
+
+  footer{ padding:3.2rem 1.5rem; text-align:center; background:var(--forest-dark); color:#cfd6bd; }
+  footer p{ max-width:58ch; margin:0.6rem auto 0; font-size:0.9rem; }
+  footer .btn{ margin-top:1.3rem; }
+</style>
+</head>
+<body>
+
+<nav id="ribbon" aria-label="Kemajuan modul">
+  <div class="fabric">
+    <div class="dot" data-target="s1"><span>01 · Pengenalan</span></div>
+    <div class="dot" data-target="s2"><span>02 · Cornell</span></div>
+    <div class="dot" data-target="s3"><span>03 · Rangka</span></div>
+    <div class="dot" data-target="s4"><span>04 · Pemetaan</span></div>
+    <div class="dot" data-target="s5"><span>05 · Carta</span></div>
+    <div class="dot" data-target="s6"><span>06 · Ayat</span></div>
+    <div class="dot" data-target="s7"><span>07 · Refleksi</span></div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Aktiviti Membuat Nota · Topik 3</span>
+    <h1>5 Kaedah Membuat Nota Semasa Membaca</h1>
+    <p>Setiap bahan bacaan mempunyai struktur yang berbeza — sebahagian berbentuk hierarki, sebahagian bercabang, sebahagian berbentuk perbandingan. Modul ini melatih anda menguasai <strong>lima kaedah membuat nota</strong>: Cornell, Rangka, Pemetaan, Carta dan Ayat, supaya anda boleh memilih kaedah paling sesuai mengikut jenis teks.</p>
+
+    <div class="method-grid">
+      <div class="mcard"><span class="num">01</span><h3>Kaedah Cornell</h3><p>Ruangan petunjuk, nota &amp; rumusan berasingan — sesuai untuk kuliah.</p></div>
+      <div class="mcard"><span class="num">02</span><h3>Kaedah Rangka</h3><p>Idea disusun mengikut tahap utama → sub → perincian.</p></div>
+      <div class="mcard"><span class="num">03</span><h3>Kaedah Pemetaan</h3><p>Idea dilukis bercabang daripada satu topik utama.</p></div>
+      <div class="mcard"><span class="num">04</span><h3>Kaedah Carta</h3><p>Maklumat disusun dalam jadual mengikut kategori berulang.</p></div>
+      <div class="mcard"><span class="num">05</span><h3>Kaedah Ayat</h3><p>Setiap idea baharu dicatat sebagai satu ayat bernombor.</p></div>
+    </div>
+  </div>
+</header>
+
+<!-- 01 already shown in hero as overview; s1 anchor placed on hero itself is fine, but give explicit section for ribbon scroll target -->
+<section class="block" id="s1" style="padding-top:2.5rem;">
+  <div class="wrap">
+    <span class="eyebrow">Sebelum Bermula</span>
+    <h2>Kaedah manakah sesuai untuk jenis teks yang berlainan?</h2>
+    <p class="lede">Secara umum: gunakan <strong>Cornell</strong> untuk kuliah/ceramah, <strong>Rangka</strong> untuk teks berstruktur jelas (buku teks, dasar), <strong>Pemetaan</strong> untuk idea bercabang tanpa urutan tetap, <strong>Carta</strong> untuk perbandingan berkategori, dan <strong>Ayat</strong> untuk nota pantas semasa kuliah laju. Mari cuba kelima-limanya satu persatu.</p>
+  </div>
+</section>
+
+<!-- ============ 02 CORNELL ============ -->
+<section class="block" id="s2">
+  <div class="wrap">
+    <span class="eyebrow">02 · Kaedah Cornell</span>
+    <h2>Baca petikan, catat dalam format Cornell</h2>
+    <p class="lede">Muka surat dibahagikan kepada tiga ruangan: <strong>Petunjuk/Soalan</strong>, <strong>Nota Utama</strong> dan <strong>Rumusan</strong>.</p>
+    <div class="howto"><strong>Cara guna:</strong> Baca petikan, isi ruangan Nota Utama berdasarkan Petunjuk yang disediakan, kemudian tulis Rumusan dalam ayat sendiri.</div>
+
+    <div class="card">
+      <div class="passage">
+        <p>Membuat nota semasa membaca merupakan satu strategi pembelajaran aktif yang membantu pelajar memproses maklumat dengan lebih mendalam berbanding sekadar membaca secara pasif. Apabila pelajar menulis semula idea menggunakan perkataan sendiri, proses ini menggalakkan <em>elaborative encoding</em>, iaitu satu bentuk pemprosesan maklumat yang menghubungkaitkan pengetahuan baharu dengan pengetahuan sedia ada, sekali gus mengukuhkan ingatan jangka panjang.</p>
+        <p>Tidak kira kaedah yang dipilih, prinsip asas membuat nota yang berkesan tetap sama: tulis dalam ayat sendiri, utamakan idea utama berbanding butiran kecil, dan sentiasa kaitkan nota baharu dengan apa yang telah dipelajari sebelum ini.</p>
+      </div>
+    </div>
+
+    <div class="cornell">
+      <div class="cue">
+        <div class="col-head">Petunjuk / Soalan</div>
+        <p>1. Apakah maksud "elaborative encoding"?</p>
+        <p>2. Mengapa menulis dalam ayat sendiri lebih berkesan daripada menyalin?</p>
+        <p>3. Apakah tiga prinsip asas membuat nota yang berkesan?</p>
+      </div>
+      <div class="notes">
+        <div class="col-head">Nota Utama</div>
+        <textarea placeholder="Tulis nota utama anda di sini…" id="cornellNotes"></textarea>
+      </div>
+      <div class="summary-row">
+        <div class="col-head">Rumusan</div>
+        <textarea placeholder="Rumuskan petikan dalam 2–3 ayat sendiri…" id="cornellSummary"></textarea>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 RANGKA ============ -->
+<section class="block" id="s3">
+  <div class="wrap">
+    <span class="eyebrow">03 · Kaedah Rangka (Outline)</span>
+    <h2>Susun idea mengikut hierarki: utama → sub → perincian</h2>
+    <p class="lede">Sesuai untuk teks yang mempunyai struktur jelas seperti strategi/langkah bertingkat.</p>
+    <div class="howto"><strong>Cara guna:</strong> Pilih tahap pada menu, tekan "+ Tambah Baris", kemudian taip terus dalam baris berkenaan.</div>
+
+    <div class="card">
+      <div class="passage">
+        <p>Terdapat tiga strategi utama untuk meningkatkan tabiat membaca dalam kalangan pelajar. Pertama, mewujudkan persekitaran membaca yang selesa, seperti sudut bacaan di kelas dan bahan bacaan pelbagai genre di perpustakaan. Kedua, menganjurkan program galakan membaca secara berkala, contohnya kempen "Nadi Ilmu" bulanan dan pertandingan ulasan buku. Ketiga, mengintegrasikan aktiviti membaca ke dalam pengajaran harian, seperti sesi bacaan senyap 15 minit sebelum kelas dan bahan bacaan tambahan berkaitan topik yang diajar.</p>
+      </div>
+    </div>
+
+    <div class="outline-tools">
+      <label for="levelSelect">Tahap:</label>
+      <select id="levelSelect">
+        <option value="1">Tahap 1 — Strategi Utama</option>
+        <option value="2">Tahap 2 — Sebab/Penerangan</option>
+        <option value="3">Tahap 3 — Contoh Khusus</option>
+      </select>
+      <button class="btn" id="addLine">+ Tambah Baris</button>
+      <button class="btn ghost" id="resetOutline">↺ Set Semula</button>
+    </div>
+    <ul id="outlineList"></ul>
+  </div>
+</section>
+
+<!-- ============ 04 PEMETAAN ============ -->
+<section class="block" id="s4">
+  <div class="wrap">
+    <span class="eyebrow">04 · Kaedah Pemetaan (Mind Mapping)</span>
+    <h2>Lukiskan idea sebagai peta bercabang</h2>
+    <p class="lede">Sesuai apabila idea saling berkait secara bercabang, bukan berurutan.</p>
+    <div class="howto"><strong>Cara guna:</strong> Isikan topik utama di tengah, tiga cabang utama, dan dua butiran kecil bagi setiap cabang berdasarkan petikan Bahagian 03 di atas.</div>
+
+    <div class="tree">
+      <div class="root" contenteditable="true">Meningkatkan Tabiat Membaca</div>
+      <div class="branches">
+        <div class="branch">
+          <div class="btitle" contenteditable="true">Cabang 1</div>
+          <div contenteditable="true" data-placeholder="cth: Persekitaran membaca"></div>
+          <div contenteditable="true" data-placeholder="cth: Sudut bacaan di kelas"></div>
+        </div>
+        <div class="branch">
+          <div class="btitle" contenteditable="true">Cabang 2</div>
+          <div contenteditable="true" data-placeholder="cth: Program galakan"></div>
+          <div contenteditable="true" data-placeholder="cth: Kempen Nadi Ilmu"></div>
+        </div>
+        <div class="branch">
+          <div class="btitle" contenteditable="true">Cabang 3</div>
+          <div contenteditable="true" data-placeholder="cth: Integrasi P&amp;P"></div>
+          <div contenteditable="true" data-placeholder="cth: Bacaan senyap 15 minit"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 CARTA ============ -->
+<section class="block" id="s5">
+  <div class="wrap">
+    <span class="eyebrow">05 · Kaedah Carta (Charting)</span>
+    <h2>Bandingkan kelima-lima kaedah nota dalam satu jadual</h2>
+    <p class="lede">Kaedah Carta sesuai apabila maklumat mempunyai kategori berulang — sempurna untuk membandingkan beberapa perkara serentak.</p>
+    <div class="howto"><strong>Cara guna:</strong> Baca petikan, kemudian isikan lajur Kesesuaian, Kelebihan dan Kelemahan bagi setiap kaedah berdasarkan maklumat dalam petikan.</div>
+
+    <div class="card">
+      <div class="passage">
+        <p>Kaedah Cornell sesuai untuk kuliah kerana menyediakan ruangan soalan ulang kaji berasingan, namun memerlukan lebih ruang muka surat. Kaedah Rangka sesuai untuk teks berstruktur hierarki seperti buku teks, tetapi kurang sesuai untuk topik yang idea-ideanya bertindih. Kaedah Pemetaan sesuai untuk idea bercabang dan hubungan bukan linear, walaupun boleh menjadi berselerak jika topik terlalu luas. Kaedah Carta amat berkesan apabila maklumat mempunyai kategori berulang seperti perbandingan beberapa perkara, tetapi memerlukan perancangan lajur terlebih dahulu. Kaedah Ayat pula paling mudah dan pantas digunakan semasa kuliah pantas, namun sukar dikaji semula kerana kekurangan struktur visual.</p>
+      </div>
+    </div>
+
+    <div class="chart-scroll">
+      <table class="chart">
+        <thead>
+          <tr><th>Kaedah</th><th>Kesesuaian</th><th>Kelebihan</th><th>Kelemahan</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="kaedah">Cornell</td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td></tr>
+          <tr><td class="kaedah">Rangka</td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td></tr>
+          <tr><td class="kaedah">Pemetaan</td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td></tr>
+          <tr><td class="kaedah">Carta</td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td></tr>
+          <tr><td class="kaedah">Ayat</td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td><td contenteditable="true" data-placeholder="…"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 AYAT ============ -->
+<section class="block" id="s6">
+  <div class="wrap">
+    <span class="eyebrow">06 · Kaedah Ayat (Sentence Method)</span>
+    <h2>Catat setiap idea baharu sebagai satu ayat bernombor</h2>
+    <p class="lede">Kaedah paling ringkas dan pantas — sesuai semasa kuliah laju di mana maklumat mengalir cepat.</p>
+    <div class="howto"><strong>Cara guna:</strong> Tekan "+ Ayat Baharu" untuk setiap idea utama, atau "+ Sub-ayat" untuk butiran tambahan di bawah ayat terakhir.</div>
+
+    <div class="card">
+      <div class="passage">
+        <p>Nota yang berkesan mempunyai beberapa ciri penting. Pertama, nota perlu ditulis menggunakan ayat sendiri, bukan disalin terus daripada teks asal. Kedua, nota perlu ringkas dan padat, hanya merangkumi kata kunci dan idea utama. Ketiga, nota perlu menggunakan singkatan atau simbol yang konsisten untuk menjimatkan masa menulis. Keempat, nota perlu disemak dan dikemas kini sebaik sahaja selepas sesi kuliah tamat, ketika ingatan masih segar. Kelima, nota perlu disusun mengikut turutan supaya mudah dirujuk semula. Keenam, ruang kosong perlu ditinggalkan di antara topik bagi memudahkan tambahan nota pada masa hadapan.</p>
+      </div>
+    </div>
+
+    <div class="outline-tools">
+      <button class="btn" id="addSentence">+ Ayat Baharu</button>
+      <button class="btn ghost" id="addSubSentence">+ Sub-ayat</button>
+      <button class="btn ghost" id="resetSentence">↺ Set Semula</button>
+    </div>
+    <ol id="sentenceList"></ol>
+  </div>
+</section>
+
+<!-- ============ 07 REFLEKSI ============ -->
+<section class="block" id="s7">
+  <div class="wrap">
+    <span class="eyebrow">07 · Refleksi &amp; Pemilihan Kaedah</span>
+    <h2>Kaedah manakah paling sesuai untuk anda?</h2>
+    <p class="lede">Klik kad di bawah untuk menanda kaedah yang paling anda gemari, kemudian jawab soalan refleksi.</p>
+
+    <div class="compare-grid">
+      <div class="pillcard" data-m="Cornell"><h3>Cornell</h3><p>Kuliah &amp; teks berperenggan</p></div>
+      <div class="pillcard" data-m="Rangka"><h3>Rangka</h3><p>Teks berhierarki jelas</p></div>
+      <div class="pillcard" data-m="Pemetaan"><h3>Pemetaan</h3><p>Idea bercabang</p></div>
+      <div class="pillcard" data-m="Carta"><h3>Carta</h3><p>Perbandingan berkategori</p></div>
+      <div class="pillcard" data-m="Ayat"><h3>Ayat</h3><p>Kuliah pantas</p></div>
+    </div>
+
+    <div class="reflect-q">
+      <label for="r1">Mengapa kaedah yang anda pilih paling sesuai dengan gaya pembelajaran anda?</label>
+      <textarea id="r1" placeholder="Tulis jawapan anda…"></textarea>
+    </div>
+    <div class="reflect-q">
+      <label for="r2">Berikan satu contoh bahan bacaan (mata pelajaran/topik) yang sesuai untuk setiap kaedah selain daripada apa yang telah dibincangkan.</label>
+      <textarea id="r2" placeholder="Tulis jawapan anda…"></textarea>
+    </div>
+
+    <div class="checklist">
+      <label><input type="checkbox" class="ck"> Saya telah melengkapkan Nota Cornell</label>
+      <label><input type="checkbox" class="ck"> Saya telah membina Rangka Bertingkat</label>
+      <label><input type="checkbox" class="ck"> Saya telah melukis Peta Pemetaan</label>
+      <label><input type="checkbox" class="ck"> Saya telah melengkapkan Carta Perbandingan</label>
+      <label><input type="checkbox" class="ck"> Saya telah mencatat Nota Ayat</label>
+      <label><input type="checkbox" class="ck"> Saya telah memilih kaedah pilihan &amp; menjawab refleksi</label>
+    </div>
+  </div>
+</section>
+
+<script>
+  const dots = document.querySelectorAll('#ribbon .dot');
+  const sections = [...dots].map(d => document.getElementById(d.dataset.target));
+  dots.forEach(d => d.addEventListener('click', () => {
+    document.getElementById(d.dataset.target).scrollIntoView({behavior:'smooth'});
+  }));
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      const idx = sections.indexOf(e.target);
+      if(e.isIntersecting){ dots.forEach((d,i)=> d.classList.toggle('active', i===idx)); }
+    });
+  }, {threshold:0.3});
+  sections.forEach(s => s && io.observe(s));
+  function markDone(id){ const d = [...dots].find(d=>d.dataset.target===id); if(d) d.classList.add('done'); }
+
+  // Cornell
+  document.getElementById('cornellSummary').addEventListener('blur', (e)=>{
+    if(e.target.value.trim().length > 10) markDone('s2');
+  });
+
+  // Rangka (outline)
+  const outlineList = document.getElementById('outlineList');
+  document.getElementById('addLine').addEventListener('click', ()=>{
+    const level = document.getElementById('levelSelect').value;
+    const li = document.createElement('li');
+    li.dataset.level = level;
+    li.contentEditable = 'true';
+    li.innerHTML = '<button class="del-btn" title="Padam" onclick="this.parentElement.remove()">✕</button>';
+    outlineList.appendChild(li);
+    li.focus();
+  });
+  document.getElementById('resetOutline').addEventListener('click', ()=>{ outlineList.innerHTML=''; });
+  outlineList.addEventListener('blur', ()=>{
+    if(outlineList.querySelectorAll('li').length >= 4) markDone('s3');
+  }, true);
+
+  // Pemetaan (mind map)
+  document.querySelectorAll('.branch [contenteditable]').forEach(el=>{
+    el.addEventListener('blur', ()=>{
+      const allFilled = [...document.querySelectorAll('.branch [contenteditable]')].every(x=>x.textContent.trim().length>0);
+      if(allFilled) markDone('s4');
+    });
+  });
+
+  // Carta
+  document.querySelectorAll('table.chart td[contenteditable]').forEach(el=>{
+    el.addEventListener('blur', ()=>{
+      const allFilled = [...document.querySelectorAll('table.chart td[contenteditable]')].every(x=>x.textContent.trim().length>0);
+      if(allFilled) markDone('s5');
+    });
+  });
+
+  // Ayat (sentence method)
+  const sentenceList = document.getElementById('sentenceList');
+  document.getElementById('addSentence').addEventListener('click', ()=>{
+    const li = document.createElement('li');
+    li.contentEditable = 'true';
+    li.innerHTML = '<button class="del-btn2" title="Padam" onclick="this.parentElement.remove()">✕</button>';
+    sentenceList.appendChild(li);
+    li.focus();
+    checkSentenceDone();
+  });
+  document.getElementById('addSubSentence').addEventListener('click', ()=>{
+    const mains = sentenceList.querySelectorAll(':scope > li');
+    if(mains.length === 0){ alert('Tambah Ayat Baharu dahulu sebelum menambah sub-ayat.'); return; }
+    const lastMain = mains[mains.length-1];
+    let subOl = lastMain.querySelector('.sub');
+    if(!subOl){
+      subOl = document.createElement('ol');
+      subOl.className = 'sub';
+      lastMain.appendChild(subOl);
+    }
+    const subLi = document.createElement('li');
+    subLi.contentEditable = 'true';
+    subOl.appendChild(subLi);
+    subLi.focus();
+  });
+  document.getElementById('resetSentence').addEventListener('click', ()=>{ sentenceList.innerHTML=''; });
+  function checkSentenceDone(){
+    if(sentenceList.querySelectorAll(':scope > li').length >= 3) markDone('s6');
+  }
+  sentenceList.addEventListener('blur', checkSentenceDone, true);
+
+  // Refleksi
+  document.querySelectorAll('.pillcard').forEach(p=>{
+    p.addEventListener('click', ()=>{
+      document.querySelectorAll('.pillcard').forEach(x=>x.classList.remove('picked'));
+      p.classList.add('picked');
+    });
+  });
+  document.querySelectorAll('.checklist input').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const allChecked = [...document.querySelectorAll('.checklist input')].every(c=>c.checked);
+      if(allChecked) markDone('s7');
+    });
+  });
+</script>
+</body>
+</html>
